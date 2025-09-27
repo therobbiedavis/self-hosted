@@ -1,4 +1,4 @@
-# My Self-Hosted Server Cnfiguration
+# My Self-Hosted Server Configuration
 
 ## Overview
 
