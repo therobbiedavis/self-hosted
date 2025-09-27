@@ -1,0 +1,200 @@
+---
+services:
+  swag:
+    image: lscr.io/linuxserver/swag:latest
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - URL=
+      - VALIDATION=dns
+      - SUBDOMAINS=
+      - DNSPLUGIN=cloudflare
+      - STAGING=false
+      - PROPAGATION=20
+      - EXTRA_DOMAINS=
+      - EMAIL=
+      - DOCKER_MODS=linuxserver/mods:swag-dashboard
+      - SWAG_AUTORELOAD=true
+    networks:
+      - outside
+    volumes:
+      - /root/Server/.config/swag:/config
+      - /root/Server/.config/tandoor/mediafiles:/media
+    ports:
+      - 443:443
+      - 80:80 #optional
+      - 81:81 #dashboard
+    restart: unless-stopped
+    labels:
+      - homepage.group=Services
+      - homepage.name=SWAG Dashboard
+      - homepage.icon=mdi-monitor-dashboard.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Proxy Status
+      - homepage.widget.type=swagdashboard
+      - homepage.widget.url=[EXTERNAL URL]
+
+  torguard:
+    image: qmcgaw/gluetun
+    container_name: torguard
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 32400:32400 #Plex
+      - 3001:3001 #speedtest
+      - 8090:8090 #mylar
+      - 9696:9696 #prowlarr
+    volumes:
+      - /root/Server/.config/gluetun/:/gluetun/
+      - /etc/openvpn:/etc/openvpn
+    environment:
+      - VPN_SERVICE_PROVIDER=custom
+      - VPN_TYPE=openvpn
+      - TZ=America/New_York
+      - OPENVPN_CUSTOM_CONFIG=
+      - OPENVPN_USER=
+      - OPENVPN_PASSWORD=
+      - FIREWALL_VPN_INPUT_PORTS=32400,3001,8090,9696
+      - FIREWALL_INPUT_PORTS=32400,3001,8090,9696
+    restart: unless-stopped
+      
+  airvpn:
+    image: qmcgaw/gluetun
+    container_name: airvpn
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - 43413:43413 #qbittorrent
+      - 10117:10117
+      - 9191:9191 #qbittorrent
+      - 5030:5030 #soulseek
+      - 50300:50300 #soulseek
+      - 3100:3100 #firefox
+    volumes:
+      - /root/Server/.config/gluetun/:/gluetun/
+      - /etc/openvpn:/etc/openvpn
+    environment:
+      - VPN_SERVICE_PROVIDER=airvpn
+      - VPN_TYPE=wireguard
+      - TZ=America/New_York
+      - FIREWALL_VPN_INPUT_PORTS=9191,6881,43413,5030,50300,3100,9696
+      - FIREWALL_INPUT_PORTS=9191,6881,43413,5030,50300,3100,9696
+      - WIREGUARD_PRIVATE_KEY=
+      - WIREGUARD_PRESHARED_KEY=
+      - WIREGUARD_ADDRESSES=
+      - SERVER_COUNTRIES=
+    restart: unless-stopped
+      
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:5.0.2
+    container_name: qbittorrent
+    network_mode: container:airvpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - WEBUI_PORT=9191
+      - TORRENTING_PORT=43413
+    volumes:
+      - /root/Server/.config/qbittorrent:/config
+      - /root/Server/downloads/complete:/downloads
+      - /root/Server:/server
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - autoheal=true
+      - homepage.group=Downloaders
+      - homepage.name=qBittorrent
+      - homepage.icon=qbittorrent.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media downloader
+      - homepage.widget.type=qbittorrent
+      - homepage.widget.url=[EXTERNAL URL]
+      - homepage.widget.username=
+      - homepage.widget.password=
+      
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=0
+      - TZ=America/New_York
+    volumes:
+      - /root/Server/.config/sabnzbd:/config
+      - /root/Server/downloads/:/downloads/ #optional
+      - /root/Server/:/server/ #optional
+      - /root/Server/downloads/incomplete/sabnzbd:/downloads/incomplete/sabnzbd #optional
+    ports:
+      - 9393:8080
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - autoheal=true
+      - homepage.group=Downloaders
+      - homepage.name=SABnzbd
+      - homepage.icon=sabnzbd.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media downloader
+      - homepage.widget.type=sabnzbd
+      - homepage.widget.url=[EXTERNAL URL]
+      - homepage.widget.key=[API KEY]
+      
+  speedtest:
+    container_name: speedtest
+    network_mode: container:torguard
+    image: robinmanuelthiel/speedtest:latest
+    restart: always
+    environment:
+      - LOOP=true
+      - LOOP_DELAY=1800
+    privileged: true
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  speedtest_server:
+    network_mode: container:torguard
+    environment:
+      - ENABLE_LETSENCRYPT=FALSE
+      - DOMAIN_NAME=
+      - USER_EMAIL=
+    restart: unless-stopped
+    container_name: openspeedtest
+    image: openspeedtest/latest
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      
+  firefox:
+    environment:
+      - NO_DECOR=true
+      - DRINODE=/dev/dri/renderD128
+      - CUSTOM_USER=
+      - PASSWORD=
+      - CUSTOM_PORT=3100
+      - CUSTOM_HTTPS_PORT=3101
+    network_mode: container:airvpn
+    restart: unless-stopped
+    container_name: firefox
+    image: lscr.io/linuxserver/firefox:latest
+    shm_size: "1gb"
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - /root/Server/.config/firefox:/config
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+        
+networks:
+  outside:
+    external: true

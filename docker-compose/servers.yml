@@ -1,0 +1,391 @@
+---
+services:
+  kavita:
+    container_name: kavita
+    image: jvmilazz0/kavita:nightly
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - /root/Server/.config/kavita:/kavita/config
+      - /root/Server/mnt/drive/Library:/library
+    ports:
+      - 5001:5000
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Services
+      - homepage.name=Kavita
+      - homepage.icon=kavita.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Book Reader
+      - homepage.widget.type=kavita
+      - homepage.widget.url=[INTERNAL IP]
+      - com.centurylinklabs.watchtower.enable=true
+      
+  emby:
+    image: emby/embyserver:latest
+    container_name: emby
+    environment:
+      - UID=1000 # The UID to run emby as (default: 2)
+      - GID=0 # The GID to run emby as (default 2)
+      - GIDLIST=109,1000
+    volumes:
+      - /root/Server/.config/emby:/config
+      - /root/Server/mnt/drive:/drive
+      - /root/Server/mnt/movies/Movies:/movies
+      - /root/Server/mnt/movies/Movies-4K:/movies4k
+      - "/root/Server/mnt/tv/TV Shows:/tv"
+      - "/root/Server/mnt/tv/TV Shows 4K:/tv4k"
+      - /root/Server/mnt/drive/Music:/music
+      - /root/Server/mnt/drive/Audiobooks:/audiobooks
+      - /root/Server/mnt/drive/Library/:/library
+    ports:
+      - 8097:8096 # HTTP port
+      - 8921:8920 # HTTPS port
+    devices:
+      - /dev/dri:/dev/dri # VAAPI/NVDEC/NVENC render nodes
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - autoheal=true
+      - homepage.group=Media
+      - homepage.name=Emby
+      - homepage.icon=emby.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media server
+      - homepage.widget.type=emby
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.key=[API KEY]
+ 
+  audiobookshelf:
+    container_name: audiobookshelf
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    environment:
+      - UID=1000
+      - GID=0
+    ports:
+      - 13378:80
+    volumes:
+      - /root/Server/mnt/drive/Audiobooks:/audiobooks
+      - /root/Server/mnt/drive/Library/:/library
+      - /root/Server/.config/audiobookshelf/config:/config
+      - /root/Server/.config/audiobookshelf/metadata:/metadata
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Services
+      - homepage.name=Audiobookshelf
+      - homepage.icon=audiobookshelf.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media Status
+      - homepage.widget.type=audiobookshelf
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.key=[API KEY]
+
+  plex:
+    container_name: plex
+    image: lscr.io/linuxserver/plex
+    restart: unless-stopped
+    network_mode: "container:torguard"
+    environment:
+      - TZ=America/New_York
+      - PLEX_CLAIM=
+      - PUID=0
+      - PGID=0
+      - VERSION=public
+      - HOSTNAME=
+      - DOCKER_MODS=linuxserver/mods:plex-audnexus
+    devices:
+         - /dev/dri:/dev/dri
+    volumes:
+      - /root/Server/.config/plex:/config
+      - /root/Server/.config/plex/transcode:/transcode
+      - /root/Server/mnt/movies/Movies:/movies
+      - /root/Server/mnt/movies/Movies-4K:/movies4k
+      - "/root/Server/mnt/tv/TV Shows:/tv"
+      - "/root/Server/mnt/tv/TV Shows 4K:/tv4k"
+      - /root/Server/mnt/drive/Music:/music
+      - /root/Server/mnt/drive/Audiobooks:/audiobooks
+      - /root/Server:/server
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - autoheal=true
+      - autoheal=true
+      - homepage.group=Media
+      - homepage.name=Plex
+      - homepage.icon=plex.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media server
+      - homepage.widget.type=plex
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.key=[API KEY]
+      
+  ghost:
+    container_name: ghost
+    image: ghost:alpine
+    cap_add:
+      - CAP_SYS_NICE
+    security_opt:
+      - seccomp:unconfined
+    restart: always
+    depends_on:
+      - ghost-db
+    ports:
+      - 8383:2368
+    environment:
+      database__client: mysql
+      database__connection__host: ghost-db
+      database__connection__user: 
+      database__connection__password: 
+      database__connection__database: 
+      UNSPLASH_ACCESS_KEY: 
+      GHOST_CONTENT_API_KEY: 
+      GHOST_CONTENT_API_URL: 
+      url: https://therobbiedavis.com
+    volumes:
+      - /root/Server/.config/ghost:/var/lib/ghost/content
+      - /root/Server/.config/ghost/config.production.json:/var/lib/ghost/config.production.json
+      - /root/Server/.config/ghost/themes/TRD/helpers/content_with_rel.js:/var/lib/ghost/current/core/frontend/helpers/content_with_rel.js
+
+  ghost-db:
+    container_name: ghost-db
+    image: mysql:8.0
+    restart: always
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: 
+      MYSQL_USER: 
+      MYSQL_PASSWORD: 
+    volumes:
+      - /root/Server/.config/ghost-db:/var/lib/mysql
+
+  jellyfin:
+    container_name: jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York
+      - PUID=1000
+      - PGID=0
+      - JELLYFIN_PublishedServerUrl=
+      - DOCKER_MODS=linuxserver/mods:jellyfin-opencl-intel
+    devices:
+         - /dev/dri:/dev/dri
+    volumes:
+      - /root/Server/.config/jellyfin:/config
+      - /root/Server/mnt/drive:/drive
+      - /root/Server/mnt/movies/Movies:/movies
+      - /root/Server/mnt/movies/Movies-4K:/movies4k
+      - "/root/Server/mnt/tv/TV Shows:/tv"
+      - "/root/Server/mnt/tv/TV Shows 4K:/tv4k"
+      - /root/Server/mnt/drive/Music:/music
+      - /root/Server/mnt/drive/Audiobooks:/audiobooks
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1900:1900/udp #optional
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - autoheal=true
+      - homepage.group=Media
+      - homepage.name=Jellyfin
+      - homepage.icon=jellyfin.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media server
+      - homepage.widget.type=jellyfin
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.key=[API KEY]
+      
+  romm:
+    image: rommapp/romm:latest
+    container_name: romm
+    restart: unless-stopped
+    user: "0:0"
+    environment:
+      - DB_HOST=romm-db
+      - DB_NAME= # Should match MYSQL_DATABASE in mariadb
+      - DB_USER= # Should match MYSQL_USER in mariadb
+      - DB_PASSWD= # Should match MYSQL_PASSWORD in mariadb
+      - IGDB_CLIENT_ID=
+      - IGDB_CLIENT_SECRET=
+      - ROMM_AUTH_SECRET_KEY= # Generate a key with `openssl rand -hex 32`
+      - ROMM_AUTH_USERNAME=
+      - ROMM_AUTH_PASSWORD= # default: admin
+      - ENABLE_RESCAN_ON_FILESYSTEM_CHANGE=true
+      - DISABLE_DOWNLOAD_ENDPOINT_AUTH=true
+      - DISABLE_DOWNLOAD_AUTH=true
+      - OIDC_ENABLED=false
+      - OIDC_PROVIDER=authentik
+      - DISABLE_USERPASS_LOGIN=true
+      - OIDC_CLIENT_ID=
+      - OIDC_CLIENT_SECRET=
+      - OIDC_REDIRECT_URI=
+      - OIDC_SERVER_APPLICATION_URL=
+    volumes:
+      - '/root/Server/.config/romm/resources:/romm/resources' # Resources fetched from IGDB (covers, screenshots, etc.)
+      - '/root/Server/mnt/drive/ROMs/Nintendo Entertainment System:/romm/library/nes/roms'
+      - '/root/Server/mnt/drive/ROMs/Super Nintendo Entertainment System:/romm/library/snes/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Gamecube:/romm/library/ngc/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo 64:/romm/library/n64/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Wii:/romm/library/wii/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Wii U:/romm/library/wiiu/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Switch:/romm/library/switch'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Gameboy:/romm/library/gb/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Gameboy Color:/romm/library/gbc/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Gameboy Advance:/romm/library/gba/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo DS:/romm/library/nds/roms'
+      - '/root/Server/mnt/drive/ROMs/Nintendo 3DS:/romm/library/3ds'
+      - '/root/Server/mnt/drive/ROMs/Nintendo Virtual Boy:/romm/library/virtualboy/roms'
+      - '/root/Server/mnt/drive/ROMs/Sega Genesis:/romm/library/genesis-slash-megadrive/roms'
+      - '/root/Server/mnt/drive/ROMs/Sega 32X:/romm/library/sega32/roms'
+      - '/root/Server/mnt/drive/ROMs/Sega CD:/romm/library/segacd/roms'
+      - '/root/Server/mnt/drive/ROMs/Sega Dreamcast:/romm/library/dc/roms'
+      - '/root/Server/mnt/drive/ROMs/Sega Saturn:/romm/library/saturn/roms'
+      - '/root/Server/mnt/drive/ROMs/Sony PlayStation:/romm/library/ps'
+      - '/root/Server/mnt/drive/ROMs/Sony PlayStation 2:/romm/library/ps2'
+      - '/root/Server/mnt/drive/ROMs/Sony PlayStation 3:/romm/library/ps3/roms'
+      - '/root/Server/mnt/drive/ROMs/Sony PlayStation Portable:/romm/library/psp/roms'
+      - '/root/Server/mnt/drive/ROMs/Sony PlayStation Vita:/romm/library/psvita/roms'
+      - '/root/Server/mnt/drive/ROMs/Philips CD-i:/romm/library/philips-cd-i/roms'
+      - /root/Server/.config/romm/redis:/redis-data
+      - /root/Server/.config/romm/assets:/romm/assets # Uploaded saves, states, etc.
+      - /root/Server/.config/romm/config:/romm/config # [Optional] Path where config.yml is stored
+      - /root/Server/.config/romm/logs:/romm/logs # [Optional] Path where logs are stored
+    ports:
+      - 9090:8080
+    depends_on:
+      - romm-db
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - homepage.group=Services
+      - homepage.name=Romm
+      - homepage.icon=romm.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=ROMs Collection
+      - homepage.widget.type=romm
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.user=
+      - homepage.widget.password=
+
+  romm-db:
+    image: mariadb:latest
+    container_name: romm-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=1 # Use a unique, secure password
+      - MYSQL_DATABASE=
+      - MYSQL_USER=
+      - MYSQL_PASSWORD=
+    volumes:
+      - /root/Server/.config/romm/db:/var/lib/mysql
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      
+  romm-comm:
+    image: idiosync000/romm-comm:latest
+    container_name: romm-comm
+    restart: unless-stopped
+    environment:
+      - TOKEN=
+      - GUILD=
+      - API_URL=
+      - USER=
+      - PASS=
+        # Optional Settings
+      - DOMAIN=
+      - SYNC_RATE=3600
+      - REQUESTS_ENABLED=TRUE
+      - IGDB_CLIENT_ID=
+      - IGDB_CLIENT_SECRET=
+      - ENABLE_USER_MANAGER=TRUE
+      - AUTO_REGISTER_ROLE_ID=
+      - UPDATE_VOICE_NAMES=FALSE
+      - CHANNEL_ID=
+      - SHOW_API_SUCCESS=false
+      - CACHE_TTL=3900
+      - API_TIMEOUT=10
+    volumes:
+      - /root/Server/.config/romm-comm:/app/data
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    
+  navidrome:
+    container_name: navidrome
+    image: deluan/navidrome:latest
+    user: 1000:1000 # should be owner of volumes
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+    environment:
+      # Optional: put your config options customization here. Examples:
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_DEFAULTTHEME: "Spotify-ish"
+      ND_ENABLECOVERANIMATION: false
+      ND_REVERSEPROXYUSERHEADER: "X-authentik-username"
+      ND_REVERSEPROXYWHITELIST: "0.0.0.0/0"
+    volumes:
+      - "/root/Server/.config/navidrome:/data"
+      - "/root/Server/mnt/drive/Music:/music:ro"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - homepage.group=Services
+      - homepage.name=Navidrome
+      - homepage.icon=navidrome.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Music Player
+      - homepage.widget.type=navidrome
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.user=
+      - homepage.widget.token=
+      - homepage.widget.salt=
+
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:lts
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    environment:
+      - VIRTUAL_HOST=
+      - VIRTUAL_PORT=9000
+    ports:
+      - 8000:8000
+      - 9443:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+      
+  podfetch:
+    container_name: podfetch
+    image: samuel19982/podfetch:latest
+    ports:
+      - "9292:8000"
+    volumes:
+      - /root/Server/mnt/drive/Podcasts:/app/podcasts
+      - /root/Server/.config/podfetch:/app/db
+    environment:
+      - POLLING_INTERVAL=60
+      - SERVER_URL=
+      - DATABASE_URL=sqlite:///app/db/podcast.db
+
+  homebox:
+    image: ghcr.io/sysadminsmedia/homebox:latest
+    container_name: homebox
+    restart: always
+    environment:
+    - HBOX_LOG_LEVEL=info
+    - HBOX_LOG_FORMAT=text
+    - HBOX_WEB_MAX_FILE_UPLOAD=10
+    - HBOX_OPTIONS_ALLOW_ANALYTICS=false
+    - HBOX_OPTIONS_ALLOW_REGISTRATION=false
+    volumes:
+      - /root/Server/mnt/drive/homebox:/data/
+    ports:
+      - 7745:7745
+
+volumes:
+  portainer_data:

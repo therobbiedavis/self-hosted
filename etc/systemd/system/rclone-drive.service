@@ -1,0 +1,39 @@
+[Unit]
+Description=RClone Service Drive
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+Environment=RCLONE_CONFIG=/root/.config/rclone/rclone.conf
+RestartSec=5
+ExecStart=/usr/bin/rclone mount webdav: /root/Server/mnt/drive --allow-other --allow-non-empty \
+# Log file location
+--log-file /root/Server/.config/rclone/rclone-drive.log \
+# Set the log level
+--log-level INFO \
+# This is setting the file permission on the mount to user and group have the same access and other can read
+--umask 002 \
+# This sets up the remote control daemon so you can issue rc commands locally
+--rc \
+# This is the default port it runs on
+--rc-addr 127.0.0.1:5573 \
+# no-auth is used as no one else uses my server and it is not a shared seedbox
+--rc-no-auth \
+# The local disk used for caching
+--cache-dir=/root/Server/cache/drive \
+# This is used for caching files to local disk for streaming
+--vfs-cache-mode full \
+--vfs-cache-max-size 25G \
+# Speed up the reading: Use fast (less accurate) fingerprints for change detection
+--vfs-fast-fingerprint
+
+ExecStop=/bin/fusermount -u /root/Server/mnt/drive
+ExecStartPost=/usr/bin/rclone rc vfs/refresh recursive=true --url 127.0.0.1:5573 _async=true
+Restart=on-failure
+User=0
+Group=0
+
+[Install]
+WantedBy=multi-user.target
+

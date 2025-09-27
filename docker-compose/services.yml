@@ -1,0 +1,279 @@
+---
+services:
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    container_name: tautulli
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /root/Server/.config/tautulli:/config
+    ports:
+      - 8181:8181
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Media
+      - homepage.name=Tautulli
+      - homepage.icon=tautulli.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Media Status
+      - homepage.widget.type=tautulli
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.key=[API KEY]
+      
+  plex-meta-manager:
+    image: kometateam/kometa:latest
+    container_name: kometa
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - KOMETA_CONFIG=/config/config.yml #optional
+      - KOMETA_TIME=00:00 #optional
+      - KOMETA_TEST=False #optional
+      - KOMETA_NO_MISSING=False #optional
+      - KOMETA_RUN=True
+    volumes:
+      - /root/Server/.config/plex-meta-manager:/config
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  pattrmm:
+    image: ghcr.io/insertdisc/pattrmm:latest
+    container_name: pattrmm
+    command: --run
+    environment:
+      - PUID=1000
+      - GUID=1000
+      - TZ=America/New_York
+      - PATTRMM_TIME=02:00
+    volumes:
+      - /root/Server/.config/pattrmm/data:/data
+      - /root/Server/.config/pattrmm/preferences:/preferences
+      - /root/Server/.config/plex-meta-manager:/config
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  picard:
+    image: mikenye/picard
+    container_name: picard
+    environment:
+      - USER_ID=1000
+      - GROUP_ID=0
+      - TZ=America/New_York
+      - KEEP_APP_RUNNING=1
+    volumes:
+      - /root/Server/.config/picard:/config
+      - /root/Server/:/storage
+    ports:
+      - 5801:5800
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  jdownloader-2:
+    image: jlesage/jdownloader-2:v25.07.2
+    container_name: jdownloader
+    ports:
+      - 5800:5800
+    environment:
+      - VNC_PASSWORD=
+    volumes:
+      - /root/Server/.config/jdownloader:/config:rw
+      - /root/Server/downloads/complete/jdownloader:/output:rw
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      - homepage.group=Downloaders
+      - homepage.name=JDownloader
+      - homepage.icon=jdownloader.png
+      - homepage.href=[EXTERNAL URL]
+      - homepage.description=Download Status
+      - homepage.widget.type=jdownloader
+      - homepage.widget.url=[INTERNAL IP]
+      - homepage.widget.username=
+      - homepage.widget.password=
+      - homepage.widget.client=
+
+  plextraktsync:
+    image: ghcr.io/taxel/plextraktsync:latest
+    container_name: plextraktsync
+    stdin_open: true
+    tty: true
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    command: watch
+    volumes:
+      - /root/Server/.config/plextraktsync:/app/config
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=600
+      - WATCHTOWER_LABEL_ENABLE=true
+      - WATCHTOWER_NOTIFICATION_URL=discord://
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    
+  autoscan:
+    container_name: autoscan
+    image: ghcr.io/hotio/autoscan
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /root/Server/.config/autoscan:/config
+      - /root/Server:/server
+      - /root/Server/downloads/complete:/downloads
+    depends_on:
+      - autoscan-adapter
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+
+  autoscan-adapter:
+    image: dantebarba/autoscan-adapter
+    container_name: autoscan-adapter
+    restart: unless-stopped
+    ports:
+      - "3031:5000"
+    environment:
+      - PGID= 1000
+      - PUID= 1000
+      - PLEX_URL=
+      - PLEX_TOKEN=
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    ports:
+      - 3131:3100
+    environment:
+      - HOMEPAGE_ALLOWED_HOSTS=
+    volumes:
+      - /root/Server/.config/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      
+  wizarr:
+    container_name: wizarr
+    image: ghcr.io/wizarrrr/wizarr:latest
+    ports:
+      - 5690:5690
+    volumes:
+      - /root/Server/.config/wizarr:/data/database
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    restart: unless-stopped
+      
+  wrapperr:
+    ports:
+      - '8282:8282'
+    container_name: wrapperr
+    image: ghcr.io/aunefyren/wrapperr:latest
+    restart: unless-stopped
+    volumes:
+      - /root/Server/.config/wrapperr:/app/config
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    
+  notifiarr:
+    privileged: true
+    container_name: notifiarr
+    hostname: notifiarr
+    image: golift/notifiarr
+    restart: unless-stopped
+    ports:
+      - "5454:5454"
+    environment:
+      - DN_API_KEY=
+      - DN_BIND_ADDR=
+    volumes:
+      - /root/Server/.config/notifiarr:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+    
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:latest
+    volumes:
+      - /root/Server/.config/uptime-kuma:/app/data
+    ports:
+      - 3333:3001
+    restart: unless-stopped    
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+      
+  pds:
+    container_name: pds
+    image: ghcr.io/bluesky-social/pds:0.4
+    volumes:
+        - /root/Server/.config/bluesky-pds:/pds
+    env_file:
+      - /root/Server/.config/bluesky-pds/pds.env
+    restart: unless-stopped 
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
+    
+  duplicati:
+    image: duplicati/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=1000
+      - PGID=0
+    volumes:
+      - /root/Server/.config/duplicati/:/data
+      - /root/Server:/server #optional
+    ports:
+      - 8200:8200
+    restart: unless-stopped
+    
+  yamtrack:
+    container_name: yamtrack
+    image: ghcr.io/fuzzygrim/yamtrack
+    restart: unless-stopped
+    depends_on:
+      - yamtrack-redis
+    environment:
+      - TZ=America/New_York
+      - SECRET=
+      - REDIS_URL=redis://yamtrack-redis:6379
+      - URLS=
+      - ALLOWED_HOSTS=
+      - REGISTRATION=true
+      - CSRF=
+      - TRAKT_API=
+      - SOCIAL_PROVIDERS=
+      - SOCIALACCOUNT_ONLY=
+      - REDIRECT_LOGIN_TO_SSO=
+      - SOCIALACCOUNT_PROVIDERS=
+    volumes:
+      - /root/Server/.config/yamtrack/db:/yamtrack/db
+    ports:
+      - "8030:8000"
+
+  yamtrack-redis:
+    container_name: yamtrack-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - /root/Server/.config/yamtrack/redis:/data

@@ -1,0 +1,16 @@
+Description=RClone Webdav Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=notify
+Environment=RCLONE_CONFIG=/root/.config/rclone/rclone.conf
+RestartSec=5
+ExecStart=/usr/bin/rclone serve webdav / --addr :5678 --copy-links --user [USERNAME]--pass [PASSWORD]
+Restart=on-failure
+User=0
+Group=0
+
+[Install]
+WantedBy=multi-user.target
+

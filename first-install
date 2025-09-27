@@ -1,0 +1,120 @@
+##
+# Remove incompatible docker
+##
+for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do sudo apt-get remove $pkg; done
+
+##
+# Installing Docker
+##
+apt-get update
+apt-get install ca-certificates curl gnupg -y
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+##
+# Installing Docker-compose
+##
+apt install docker-compose -y
+
+##
+# Installing Rclone
+##
+sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
+##
+# Change to local time zone
+##
+timedatectl set-timezone America/New_York
+
+##
+# Install htop for better resource monitoring
+##
+apt install htop -y
+
+##
+# Increase watcher for folder watching
+##
+echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+cat /proc/sys/fs/inotify/max_user_watches
+
+##
+# Add User
+##
+adduser robbie
+usermod -a -G root robbie
+
+##
+# Installing VNC
+##
+apt install xfce4 xfce4-goodies tigervnc-standalone-server dbus-x11 tigervnc-common -y
+vncpasswd
+vncserver -localhost no
+
+##
+# Installing Portainer
+##
+docker volume create portainer_data
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
+
+##
+# Setup folder structure
+##
+mkdir /root/Server/
+mkdir /root/Server/.config
+mkdir /root/Server/downloads
+mkdir /root/Server/downloads/complete
+mkdir /root/Server/downloads/incomplete
+mkdir /root/Server/downloads/complete/jdownloader
+mkdir /root/Server/downloads/complete/kapowarr
+mkdir /root/Server/downloads/complete/lidarr
+mkdir /root/Server/downloads/complete/mylar
+mkdir /root/Server/downloads/complete/radarr
+mkdir /root/Server/downloads/complete/sonarr
+mkdir /root/Server/mnt
+mkdir /root/Server/mnt/drive
+mkdir /root/Server/mnt/tv
+mkdir /root/Server/mnt/movies
+mkdir /root/Server/mnt/media_tmp
+mkdir /root/Server/cache
+
+##
+# Change owner of folders
+##
+chown -R robbie /root/Server/downloads
+chown -R robbie /root/Server/.config
+
+##
+# Copy Rclone config from one server to another
+##
+#rclone copy hetzner:/root/Server/Backups/etc/systemd/system/ /etc/systemd/system/
+#systemctl daemon-reload
+#systemctl enable rclone-drive
+#systemctl enable rclone-movies
+#systemctl enable rclone-tv
+
+##
+# Scripts to copy data from one provider to another
+##
+
+##
+# Create network that is accessible externally
+##
+docker network create outside
+
+##
+# Create the containers
+##
+docker compose -f /root/Server/docker/proxy.yml up -d
+docker compose -f /root/Server/docker/authentik.yml up -d
+docker compose -f /root/Server/docker/services.yml up -d
+docker compose -f /root/Server/docker/requesters.yml up -d
+docker compose -f /root/Server/docker/servers.yml up -d
+docker compose -f /root/Server/docker/arrs.yml up -d
