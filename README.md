@@ -58,8 +58,8 @@ Here are some common tasks for managing containers with Docker Compose:
 To update all images defined in a compose file and restart containers with the latest versions:
 
 ```bash
-docker-compose pull
-docker-compose up -d
+docker-compose -f docker-compose/arrs.yml pull
+docker-compose -f docker-compose/arrs.yml up -d
 ```
 
 This will pull the latest images and recreate containers as needed.
@@ -79,7 +79,7 @@ This will only update and restart the specified container from the given compose
 To restart all containers defined in a compose file:
 
 ```bash
-docker-compose restart
+docker-compose -f docker-compose/arrs.yml restart
 ```
 
 ### Stopping and Removing Containers
@@ -87,7 +87,7 @@ docker-compose restart
 To stop and remove all containers, networks, and volumes defined in a compose file:
 
 ```bash
-docker-compose down
+docker-compose -f docker-compose/arrs.yml down
 ```
 
 ### Viewing Logs
@@ -95,7 +95,7 @@ docker-compose down
 To view logs for all containers in a compose file:
 
 ```bash
-docker-compose logs -f
+docker-compose -f docker-compose/arrs.yml logs
 ```
 
 Refer to the [Docker Compose documentation](https://docs.docker.com/compose/) for more details and advanced usage.
