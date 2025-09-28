@@ -119,6 +119,74 @@ To view logs for all containers in a compose file:
 docker-compose -f docker-compose/arrs.yml logs
 ```
 
+## Gluetun VPN Setup Guide
+
+Gluetun is used to route container traffic through a VPN. This means you will need a VPN plan with a supported provider to use Gluetun. This guide covers setting up WireGuard with Torguard and using the built-in AirVPN provider.
+
+### WireGuard with Torguard
+
+1. **Get your WireGuard config from Torguard:**
+	- Log in to your Torguard account and generate a WireGuard config for your desired server/location.
+	- Download the config file (usually named `wg0.conf`).
+
+2. **Place the config file:**
+	- Save your WireGuard config in a directory accessible to the Gluetun container, e.g. `/root/Server/.config/gluetun/wg0.conf`.
+
+3. **Set environment variables in your `.env` file:**
+	```env
+	VPN_SERVICE_PROVIDER=custom
+	VPN_TYPE=wireguard
+	TZ=America/New_York
+	WIREGUARD_PRIVATE_KEY=<your_private_key>
+	WIREGUARD_ADDRESSES=<your_wireguard_address>
+	WIREGUARD_PRESHARED_KEY=<your_preshared_key> # if provided
+	OPENVPN_CUSTOM_CONFIG=
+	FIREWALL_VPN_INPUT_PORTS=32400,3001,8090,9696
+	FIREWALL_INPUT_PORTS=32400,3001,8090,9696
+	```
+	- The private key, address, and preshared key can be found in your WireGuard config file.
+
+4. **Update your Docker Compose file:**
+	- Mount the config file as a volume:
+	  ```yaml
+	  volumes:
+		 - /root/Server/.config/gluetun/:/gluetun/
+	  ```
+	- Set the environment variables as shown above.
+
+5. **Start the container:**
+	```bash
+	docker-compose -f docker-compose/proxy.yml up -d gluetun (or whatever the container is called)
+	```
+
+### Built-in AirVPN Provider
+
+1. **Set environment variables in your `.env` file:**
+	```env
+	VPN_SERVICE_PROVIDER=airvpn
+	VPN_TYPE=wireguard
+	TZ=America/New_York
+	FIREWALL_VPN_INPUT_PORTS=9191,6881,43413,5030,50300,3100,9696
+	FIREWALL_INPUT_PORTS=9191,6881,43413,5030,50300,3100,9696
+	WIREGUARD_PRIVATE_KEY=<your_private_key>
+	WIREGUARD_PRESHARED_KEY=<your_preshared_key>
+	WIREGUARD_ADDRESSES=<your_wireguard_address>
+	SERVER_COUNTRIES=<country_code> # e.g. US, CA, NL
+	```
+	- You can get your WireGuard credentials from AirVPN's client area.
+
+2. **Update your Docker Compose file:**
+	- No custom config file is needed; Gluetun will use the built-in provider.
+
+3. **Start the container:**
+	```bash
+	docker-compose -f docker-compose/proxy.yml up -d gluetun (or whatever the container is called)
+	```
+
+**Tip:**
+- For both setups, ensure your firewall and port forwarding settings match your use case.
+- For more details, see the [Gluetun documentation](https://github.com/qdm12/gluetun/wiki).
+
 Refer to the [Docker Compose documentation](https://docs.docker.com/compose/) for more details and advanced usage.
 
 ## Support
