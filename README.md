@@ -1,5 +1,5 @@
 # My Self-Hosted Server Configuration
-# Personal Anecdote
+## Personal Anecdote
 
 This setup is running on a dedicated server from the Hetzner auction market ([Hetzner Server Auction](https://www.hetzner.com/sb/) for around $35 USD/month as of 2025). The current machine is an Intel Core i9-9900K with 2x 1TB NVMe SSDs and 64GB DDR4 RAM (4x 16GB sticks). The server is located in Germany and offers unmetered bandwidth, which is perfect for hosting media services, cloud storage, and remote access for friends and family.
 
