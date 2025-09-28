@@ -1,36 +1,38 @@
 ---
 services:
   overseerr:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/overseerr:latest
     container_name: overseerr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/overseerr:/config
-    ports:
-      - 5055:5055
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - homepage.group=Services
       - homepage.name=Overseerr
       - homepage.icon=overseerr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${OVERSEERR_EXTERNAL_URL}
       - homepage.description=Media requester
       - homepage.widget.type=overseerr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
-      
+      - homepage.widget.url=${OVERSEERR_INTERNAL_IP}
+      - homepage.widget.key=${OVERSEERR_API_KEY}
+
   requestrr:
+    env_file:
+      - .env
     image: ghcr.io/hotio/requestrr
     container_name: requestrr
     environment:
-      - PUID=1000
-      - PGID=0
+      - PUID=${PUID}
+      - PGID=${PGID}
       - UMASK=002
-      - TZ=America/New_York
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/requestrr:/config
     ports:

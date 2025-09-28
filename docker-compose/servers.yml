@@ -1,34 +1,37 @@
 ---
 services:
   kavita:
-    container_name: kavita
+    env_file:
+      - .env
     image: jvmilazz0/kavita:nightly
+    container_name: kavita
     environment:
-      - TZ=America/New_York
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/kavita:/kavita/config
       - /root/Server/mnt/drive/Library:/library
     ports:
-      - 5001:5000
+      - "5001:5000"
     restart: unless-stopped
     labels:
       - com.centurylinklabs.watchtower.enable=true
       - homepage.group=Services
       - homepage.name=Kavita
       - homepage.icon=kavita.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${KAVITA_EXTERNAL_URL}
       - homepage.description=Book Reader
       - homepage.widget.type=kavita
-      - homepage.widget.url=[INTERNAL IP]
-      - com.centurylinklabs.watchtower.enable=true
+      - homepage.widget.url=${KAVITA_INTERNAL_IP}
       
   emby:
+    env_file:
+      - .env
     image: emby/embyserver:latest
     container_name: emby
     environment:
-      - UID=1000 # The UID to run emby as (default: 2)
-      - GID=0 # The GID to run emby as (default 2)
-      - GIDLIST=109,1000
+      - UID=${EMBY_UID}
+      - GID=${EMBY_GID}
+      - GIDLIST=${EMBY_GIDLIST}
     volumes:
       - /root/Server/.config/emby:/config
       - /root/Server/mnt/drive:/drive
@@ -40,31 +43,32 @@ services:
       - /root/Server/mnt/drive/Audiobooks:/audiobooks
       - /root/Server/mnt/drive/Library/:/library
     ports:
-      - 8097:8096 # HTTP port
-      - 8921:8920 # HTTPS port
+      - "8097:8096" # HTTP port
+      - "8921:8920" # HTTPS port
     devices:
       - /dev/dri:/dev/dri # VAAPI/NVDEC/NVENC render nodes
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
-      - autoheal=true
       - homepage.group=Media
       - homepage.name=Emby
       - homepage.icon=emby.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${EMBY_EXTERNAL_URL}
       - homepage.description=Media server
       - homepage.widget.type=emby
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${EMBY_INTERNAL_IP}
+      - homepage.widget.key=${EMBY_API_KEY}
  
   audiobookshelf:
-    container_name: audiobookshelf
+    env_file:
+      - .env
     image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
     environment:
-      - UID=1000
-      - GID=0
+      - UID=${AUDIOBOOKSHELF_UID}
+      - GID=${AUDIOBOOKSHELF_GID}
     ports:
-      - 13378:80
+      - "13378:80"
     volumes:
       - /root/Server/mnt/drive/Audiobooks:/audiobooks
       - /root/Server/mnt/drive/Library/:/library
@@ -76,22 +80,24 @@ services:
       - homepage.group=Services
       - homepage.name=Audiobookshelf
       - homepage.icon=audiobookshelf.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${AUDIOBOOKSHELF_EXTERNAL_URL}
       - homepage.description=Media Status
       - homepage.widget.type=audiobookshelf
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${AUDIOBOOKSHELF_INTERNAL_IP}
+      - homepage.widget.key=${AUDIOBOOKSHELF_API_KEY}
 
   plex:
+    env_file:
+      - .env
     container_name: plex
     image: lscr.io/linuxserver/plex
     restart: unless-stopped
     network_mode: "container:torguard"
     environment:
-      - TZ=America/New_York
+      - TZ=${TZ}
       - PLEX_CLAIM=
-      - PUID=0
-      - PGID=0
+      - PUID=${PUID}
+      - PGID=${PGID}
       - VERSION=public
       - HOSTNAME=
       - DOCKER_MODS=linuxserver/mods:plex-audnexus
@@ -109,18 +115,18 @@ services:
       - /root/Server:/server
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
-      - autoheal=true
-      - autoheal=true
       - homepage.group=Media
       - homepage.name=Plex
       - homepage.icon=plex.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${PLEX_EXTERNAL_URL}
       - homepage.description=Media server
       - homepage.widget.type=plex
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${PLEX_INTERNAL_IP}
+      - homepage.widget.key=${PLEX_API_KEY}
       
   ghost:
+    env_file:
+      - .env
     container_name: ghost
     image: ghost:alpine
     cap_add:
@@ -131,46 +137,45 @@ services:
     depends_on:
       - ghost-db
     ports:
-      - 8383:2368
+      - "8383:2368"
     environment:
       database__client: mysql
       database__connection__host: ghost-db
-      database__connection__user: 
-      database__connection__password: 
-      database__connection__database: 
-      UNSPLASH_ACCESS_KEY: 
-      GHOST_CONTENT_API_KEY: 
-      GHOST_CONTENT_API_URL: 
-      url: https://therobbiedavis.com
+      database__connection__user: ${GHOST_DB_USER}
+      database__connection__password: ${GHOST_DB_PASSWORD}
+      database__connection__database: ${GHOST_DB_NAME}
     volumes:
       - /root/Server/.config/ghost:/var/lib/ghost/content
       - /root/Server/.config/ghost/config.production.json:/var/lib/ghost/config.production.json
-      - /root/Server/.config/ghost/themes/TRD/helpers/content_with_rel.js:/var/lib/ghost/current/core/frontend/helpers/content_with_rel.js
 
   ghost-db:
+    env_file:
+      - .env
     container_name: ghost-db
     image: mysql:8.0
     restart: always
     security_opt:
       - seccomp:unconfined
     environment:
-      MYSQL_ROOT_PASSWORD: 
-      MYSQL_DATABASE: 
-      MYSQL_USER: 
-      MYSQL_PASSWORD: 
+      MYSQL_ROOT_PASSWORD: ${GHOST_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${GHOST_MYSQL_DATABASE}
+      MYSQL_USER: ${GHOST_MYSQL_USER}
+      MYSQL_PASSWORD: ${GHOST_MYSQL_PASSWORD}
     volumes:
       - /root/Server/.config/ghost-db:/var/lib/mysql
 
   jellyfin:
+    env_file:
+      - .env
     container_name: jellyfin
     image: lscr.io/linuxserver/jellyfin:latest
     restart: unless-stopped
     environment:
-      - TZ=America/New_York
-      - PUID=1000
-      - PGID=0
-      - JELLYFIN_PublishedServerUrl=
-      - DOCKER_MODS=linuxserver/mods:jellyfin-opencl-intel
+      - TZ=${JELLYFIN_TZ}
+      - PUID=${JELLYFIN_PUID}
+      - PGID=${JELLYFIN_PGID}
+      - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLISHED_SERVER_URL}
+      - DOCKER_MODS=${JELLYFIN_DOCKER_MODS}
     devices:
          - /dev/dri:/dev/dri
     volumes:
@@ -183,47 +188,49 @@ services:
       - /root/Server/mnt/drive/Music:/music
       - /root/Server/mnt/drive/Audiobooks:/audiobooks
     ports:
-      - 8096:8096
-      - 8920:8920 #optional
-      - 7359:7359/udp #optional
-      - 1900:1900/udp #optional
+      - "8096:8096"
+      - "8920:8920" #optional
+      - "7359:7359/udp" #optional
+      - "1900:1900/udp" #optional
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - autoheal=true
       - homepage.group=Media
       - homepage.name=Jellyfin
       - homepage.icon=jellyfin.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${JELLYFIN_EXTERNAL_URL}
       - homepage.description=Media server
       - homepage.widget.type=jellyfin
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${JELLYFIN_INTERNAL_IP}
+      - homepage.widget.key=${JELLYFIN_API_KEY}
       
   romm:
+    env_file:
+      - .env
     image: rommapp/romm:latest
     container_name: romm
     restart: unless-stopped
     user: "0:0"
     environment:
-      - DB_HOST=romm-db
-      - DB_NAME= # Should match MYSQL_DATABASE in mariadb
-      - DB_USER= # Should match MYSQL_USER in mariadb
-      - DB_PASSWD= # Should match MYSQL_PASSWORD in mariadb
-      - IGDB_CLIENT_ID=
-      - IGDB_CLIENT_SECRET=
-      - ROMM_AUTH_SECRET_KEY= # Generate a key with `openssl rand -hex 32`
-      - ROMM_AUTH_USERNAME=
-      - ROMM_AUTH_PASSWORD= # default: admin
-      - ENABLE_RESCAN_ON_FILESYSTEM_CHANGE=true
-      - DISABLE_DOWNLOAD_ENDPOINT_AUTH=true
-      - DISABLE_DOWNLOAD_AUTH=true
-      - OIDC_ENABLED=false
-      - OIDC_PROVIDER=authentik
-      - DISABLE_USERPASS_LOGIN=true
-      - OIDC_CLIENT_ID=
-      - OIDC_CLIENT_SECRET=
-      - OIDC_REDIRECT_URI=
-      - OIDC_SERVER_APPLICATION_URL=
+      - DB_HOST=${ROMM_DB_HOST}
+      - DB_NAME=${ROMM_DB_NAME}
+      - DB_USER=${ROMM_DB_USER}
+      - DB_PASSWD=${ROMM_DB_PASSWD}
+      - IGDB_CLIENT_ID=${ROMM_IGDB_CLIENT_ID}
+      - IGDB_CLIENT_SECRET=${ROMM_IGDB_CLIENT_SECRET}
+      - ROMM_AUTH_SECRET_KEY=${ROMM_AUTH_SECRET_KEY}
+      - ROMM_AUTH_USERNAME=${ROMM_AUTH_USERNAME}
+      - ROMM_AUTH_PASSWORD=${ROMM_AUTH_PASSWORD}
+      - ENABLE_RESCAN_ON_FILESYSTEM_CHANGE=${ROMM_ENABLE_RESCAN_ON_FS_CHANGE}
+      - DISABLE_DOWNLOAD_ENDPOINT_AUTH=${ROMM_DISABLE_DOWNLOAD_ENDPOINT_AUTH}
+      - DISABLE_DOWNLOAD_AUTH=${ROMM_DISABLE_DOWNLOAD_AUTH}
+      - OIDC_ENABLED=${ROMM_OIDC_ENABLED}
+      - OIDC_PROVIDER=${ROMM_OIDC_PROVIDER}
+      - DISABLE_USERPASS_LOGIN=${ROMM_DISABLE_USERPASS_LOGIN}
+      - OIDC_CLIENT_ID=${ROMM_OIDC_CLIENT_ID}
+      - OIDC_CLIENT_SECRET=${ROMM_OIDC_CLIENT_SECRET}
+      - OIDC_REDIRECT_URI=${ROMM_OIDC_REDIRECT_URI}
+      - OIDC_SERVER_APPLICATION_URL=${ROMM_OIDC_SERVER_APPLICATION_URL}
     volumes:
       - '/root/Server/.config/romm/resources:/romm/resources' # Resources fetched from IGDB (covers, screenshots, etc.)
       - '/root/Server/mnt/drive/ROMs/Nintendo Entertainment System:/romm/library/nes/roms'
@@ -255,7 +262,7 @@ services:
       - /root/Server/.config/romm/config:/romm/config # [Optional] Path where config.yml is stored
       - /root/Server/.config/romm/logs:/romm/logs # [Optional] Path where logs are stored
     ports:
-      - 9090:8080
+      - "9090:8080"
     depends_on:
       - romm-db
     labels:
@@ -263,56 +270,61 @@ services:
       - homepage.group=Services
       - homepage.name=Romm
       - homepage.icon=romm.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${ROMM_EXTERNAL_URL}
       - homepage.description=ROMs Collection
       - homepage.widget.type=romm
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.user=
-      - homepage.widget.password=
+      - homepage.widget.url=${ROMM_INTERNAL_IP}
+      - homepage.widget.user=${ROMM_USER}
+      - homepage.widget.password=${ROMM_PASSWORD}
 
   romm-db:
+    env_file:
+      - .env
     image: mariadb:latest
     container_name: romm-db
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=1 # Use a unique, secure password
-      - MYSQL_DATABASE=
-      - MYSQL_USER=
-      - MYSQL_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=${ROMM_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${ROMM_MYSQL_DATABASE}
+      - MYSQL_USER=${ROMM_MYSQL_USER}
+      - MYSQL_PASSWORD=${ROMM_MYSQL_PASSWORD}
     volumes:
       - /root/Server/.config/romm/db:/var/lib/mysql
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       
   romm-comm:
+    env_file:
+      - .env
     image: idiosync000/romm-comm:latest
     container_name: romm-comm
     restart: unless-stopped
     environment:
-      - TOKEN=
-      - GUILD=
-      - API_URL=
-      - USER=
-      - PASS=
-        # Optional Settings
-      - DOMAIN=
-      - SYNC_RATE=3600
-      - REQUESTS_ENABLED=TRUE
-      - IGDB_CLIENT_ID=
-      - IGDB_CLIENT_SECRET=
-      - ENABLE_USER_MANAGER=TRUE
-      - AUTO_REGISTER_ROLE_ID=
-      - UPDATE_VOICE_NAMES=FALSE
-      - CHANNEL_ID=
-      - SHOW_API_SUCCESS=false
-      - CACHE_TTL=3900
-      - API_TIMEOUT=10
+      - TOKEN=${ROMM_COMM_TOKEN}
+      - GUILD=${ROMM_COMM_GUILD}
+      - API_URL=${ROMM_COMM_API_URL}
+      - USER=${ROMM_COMM_USER}
+      - PASS=${ROMM_COMM_PASS}
+      - DOMAIN=${ROMM_COMM_DOMAIN}
+      - SYNC_RATE=${ROMM_COMM_SYNC_RATE}
+      - REQUESTS_ENABLED=${ROMM_COMM_REQUESTS_ENABLED}
+      - IGDB_CLIENT_ID=${ROMM_COMM_IGDB_CLIENT_ID}
+      - IGDB_CLIENT_SECRET=${ROMM_COMM_IGDB_CLIENT_SECRET}
+      - ENABLE_USER_MANAGER=${ROMM_COMM_ENABLE_USER_MANAGER}
+      - AUTO_REGISTER_ROLE_ID=${ROMM_COMM_AUTO_REGISTER_ROLE_ID}
+      - UPDATE_VOICE_NAMES=${ROMM_COMM_UPDATE_VOICE_NAMES}
+      - CHANNEL_ID=${ROMM_COMM_CHANNEL_ID}
+      - SHOW_API_SUCCESS=${ROMM_COMM_SHOW_API_SUCCESS}
+      - CACHE_TTL=${ROMM_COMM_CACHE_TTL}
+      - API_TIMEOUT=${ROMM_COMM_API_TIMEOUT}
     volumes:
       - /root/Server/.config/romm-comm:/app/data
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     
   navidrome:
+    env_file:
+      - .env
     container_name: navidrome
     image: deluan/navidrome:latest
     user: 1000:1000 # should be owner of volumes
@@ -320,14 +332,13 @@ services:
       - "4533:4533"
     restart: unless-stopped
     environment:
-      # Optional: put your config options customization here. Examples:
-      ND_SCANSCHEDULE: 1h
-      ND_LOGLEVEL: info  
-      ND_SESSIONTIMEOUT: 24h
-      ND_DEFAULTTHEME: "Spotify-ish"
-      ND_ENABLECOVERANIMATION: false
-      ND_REVERSEPROXYUSERHEADER: "X-authentik-username"
-      ND_REVERSEPROXYWHITELIST: "0.0.0.0/0"
+      ND_SCANSCHEDULE: ${NAVIDROME_SCANSCHEDULE}
+      ND_LOGLEVEL: ${NAVIDROME_LOGLEVEL}
+      ND_SESSIONTIMEOUT: ${NAVIDROME_SESSIONTIMEOUT}
+      ND_DEFAULTTHEME: ${NAVIDROME_DEFAULTTHEME}
+      ND_ENABLECOVERANIMATION: ${NAVIDROME_ENABLECOVERANIMATION}
+      ND_REVERSEPROXYUSERHEADER: ${NAVIDROME_REVERSEPROXYUSERHEADER}
+      ND_REVERSEPROXYWHITELIST: ${NAVIDROME_REVERSEPROXYWHITELIST}
     volumes:
       - "/root/Server/.config/navidrome:/data"
       - "/root/Server/mnt/drive/Music:/music:ro"
@@ -336,30 +347,34 @@ services:
       - homepage.group=Services
       - homepage.name=Navidrome
       - homepage.icon=navidrome.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${NAVIDROME_EXTERNAL_URL}
       - homepage.description=Music Player
       - homepage.widget.type=navidrome
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.user=
-      - homepage.widget.token=
-      - homepage.widget.salt=
+      - homepage.widget.url=${NAVIDROME_INTERNAL_IP}
+      - homepage.widget.user=${NAVIDROME_USER}
+      - homepage.widget.token=${NAVIDROME_TOKEN}
+      - homepage.widget.salt=${NAVIDROME_SALT}
 
   portainer:
+    env_file:
+      - .env
     container_name: portainer
     image: portainer/portainer-ce:lts
     command: -H unix:///var/run/docker.sock
     restart: always
     environment:
-      - VIRTUAL_HOST=
-      - VIRTUAL_PORT=9000
+      - VIRTUAL_HOST=${PORTAINER_VIRTUAL_HOST}
+      - VIRTUAL_PORT=${PORTAINER_VIRTUAL_PORT}
     ports:
-      - 8000:8000
-      - 9443:9443
+      - "8000:8000"
+      - "9443:9443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
       
   podfetch:
+    env_file:
+      - .env
     container_name: podfetch
     image: samuel19982/podfetch:latest
     ports:
@@ -368,24 +383,26 @@ services:
       - /root/Server/mnt/drive/Podcasts:/app/podcasts
       - /root/Server/.config/podfetch:/app/db
     environment:
-      - POLLING_INTERVAL=60
-      - SERVER_URL=
-      - DATABASE_URL=sqlite:///app/db/podcast.db
+      - POLLING_INTERVAL=${PODFETCH_POLLING_INTERVAL}
+      - SERVER_URL=${PODFETCH_SERVER_URL}
+      - DATABASE_URL=${PODFETCH_DATABASE_URL}
 
   homebox:
+    env_file:
+      - .env
     image: ghcr.io/sysadminsmedia/homebox:latest
     container_name: homebox
     restart: always
     environment:
-    - HBOX_LOG_LEVEL=info
-    - HBOX_LOG_FORMAT=text
-    - HBOX_WEB_MAX_FILE_UPLOAD=10
-    - HBOX_OPTIONS_ALLOW_ANALYTICS=false
-    - HBOX_OPTIONS_ALLOW_REGISTRATION=false
+      - HBOX_LOG_LEVEL=${HOMEBOX_LOG_LEVEL}
+      - HBOX_LOG_FORMAT=${HOMEBOX_LOG_FORMAT}
+      - HBOX_WEB_MAX_FILE_UPLOAD=${HOMEBOX_WEB_MAX_FILE_UPLOAD}
+      - HBOX_OPTIONS_ALLOW_ANALYTICS=${HOMEBOX_OPTIONS_ALLOW_ANALYTICS}
+      - HBOX_OPTIONS_ALLOW_REGISTRATION=${HOMEBOX_OPTIONS_ALLOW_REGISTRATION}
     volumes:
       - /root/Server/mnt/drive/homebox:/data/
     ports:
-      - 7745:7745
+      - "7745:7745"
 
 volumes:
   portainer_data:
