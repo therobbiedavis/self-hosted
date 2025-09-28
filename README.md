@@ -11,6 +11,27 @@ This repository is a cleaned backup of my media server setup. It includes:
 
 **Note:** You must supply your own configuration files for rclone servers and any sensitive credentials. This repo does not include personal secrets or API keys.
 
+## Common Environment Variables
+
+Most containers use the following environment variables, which should be set in your `.env` file:
+
+- `PUID` and `PGID`: User and group IDs for file permissions. These are set automatically by the `first-install` script to match the `server` user.
+- `TZ`: Timezone for containers (e.g., `America/New_York`).
+- `WATCHTOWER_ENABLED`: Controls whether Watchtower auto-updates are enabled for containers. Set to `true` to allow updates.
+
+Copy `.env.example` to `.env` and fill out all required values. The `first-install` script will update `PUID` and `PGID` for you.
+
+### Example
+
+```env
+PUID=1000
+PGID=1000
+TZ=America/New_York
+WATCHTOWER_ENABLED=true
+```
+
+These variables are referenced in Docker Compose files using `${VAR_NAME}` syntax.
+
 ## Usage Instructions
 
 1. **Clone the repository:**
