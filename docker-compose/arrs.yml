@@ -1,215 +1,235 @@
 ---
 services:
   sonarr:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/sonarr:/config
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 8989:8989
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Sonarr
       - homepage.icon=sonarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${SONARR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=sonarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
-      
+      - homepage.widget.url=${SONARR_INTERNAL_IP}
+      - homepage.widget.key=${SONARR_API_KEY}
+
   sonarr4k:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr4k
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/sonarr4k:/config
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 5555:5555
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Sonarr 4K
       - homepage.icon=sonarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${SONARR4K_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=sonarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${SONARR4K_INTERNAL_IP}
+      - homepage.widget.key=${SONARR4K_API_KEY}
 
   prowlarr:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/prowlarr:latest
     container_name: prowlarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/prowlarr:/config
     network_mode: "container:torguard"
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Prowlarr
       - homepage.icon=prowlarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${PROWLARR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=prowlarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${PROWLARR_INTERNAL_IP}
+      - homepage.widget.key=${PROWLARR_API_KEY}
 
   radarr:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/radarr:/config
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 7878:7878
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Radarr
       - homepage.icon=radarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${RADARR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=radarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${RADARR_INTERNAL_IP}
+      - homepage.widget.key=${RADARR_API_KEY}
       
   radarr4k:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr4k
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/radarr4k:/config
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 7979:7878
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Radarr 4K
       - homepage.icon=radarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${RADARR4K_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=radarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${RADARR4K_INTERNAL_IP}
+      - homepage.widget.key=${RADARR4K_API_KEY}
     
   bazarr:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/bazarr:/config
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 6767:6767
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Bazarr
       - homepage.icon=bazarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${BAZARR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=bazarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${BAZARR_INTERNAL_IP}
+      - homepage.widget.key=${BAZARR_API_KEY}
       
   whisperasr:
+    env_file:
+      - .env
     image: onerahmet/openai-whisper-asr-webservice:latest
     container_name: whisperasr
     environment:
-      - ASR_MODEL=small
-      - ASR_ENGINE=faster_whisper
+      - ASR_MODEL=${ASR_MODEL}
+      - ASR_ENGINE=${ASR_ENGINE}
     ports:
       - 9001:9000
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
     
   lidarr:
+    env_file:
+      - .env
     image: blampe/lidarr:latest
     container_name: lidarr
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/lidarr:/config
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 8686:8686
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Lidarr
       - homepage.icon=lidarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${LIDARR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=lidarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${LIDARR_INTERNAL_IP}
+      - homepage.widget.key=${LIDARR_API_KEY}
       
   readarr:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/readarr:develop
     container_name: readarr
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=Etc/UTC
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/readarr:/config
-      - /root/Server:/server #optional
-    restart: unless-stopped
+      - /root/Server:/server
     ports:
       - 8787:8787
+    restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Readarr
       - homepage.icon=readarr.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${READARR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=readarr
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${READARR_INTERNAL_IP}
+      - homepage.widget.key=${READARR_API_KEY}
       
   mylar3:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/mylar3:nightly
     container_name: mylar3
     network_mode: "container:torguard"
     environment:
-      - PUID=1000
-      - PGID=0
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/mylar:/config
       - /root/Server/.config/mylar/cache:/cache
@@ -219,33 +239,35 @@ services:
       - /root/Server/.config/mylar/scripts:/scripts
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - autoheal=true
       - homepage.group=*arrs
       - homepage.name=Mylar
       - homepage.icon=mylar.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${MYLAR_EXTERNAL_URL}
       - homepage.description=Media downloader
       - homepage.widget.type=mylar
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
+      - homepage.widget.url=${MYLAR_INTERNAL_IP}
+      - homepage.widget.key=${MYLAR_API_KEY}
     
   soulseek:
+    env_file:
+      - .env
     container_name: soulseek
     image: slskd/slskd:latest
     platform: linux/amd64
     user: 1000:0
     network_mode: "container:airvpn"
     environment:
-      - TZ=America/New_York
+      - TZ=${TZ}
       - SLSKD_REMOTE_CONFIGURATION=true
       - SLSKD_SHARED_DIR=/server/drive/Music
       - SLSKD_DOWNLOADS_DIR=/downloads/complete
       - SLSKD_INCOMPLETE_DIR=/downloads/downloading
       - SLSKD_FILE_PERMISSION_MODE=777
       - SLSKD_UMASK=022
-      - SLSKD_SLSK_USERNAME=
-      - SLSKD_SLSK_PASSWORD=
+      - SLSKD_SLSK_USERNAME=${SLSKD_SLSK_USERNAME}
+      - SLSKD_SLSK_PASSWORD=${SLSKD_SLSK_PASSWORD}
     volumes:
       - /root/Server/.config/slskd:/app
       - /root/Server/mnt:/server

@@ -1,54 +1,59 @@
----
 services:
   tautulli:
+    env_file:
+      - .env
     image: lscr.io/linuxserver/tautulli:latest
     container_name: tautulli
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/tautulli:/config
     ports:
       - 8181:8181
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Media
       - homepage.name=Tautulli
       - homepage.icon=tautulli.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${TAUTULLI_EXTERNAL_URL}
       - homepage.description=Media Status
       - homepage.widget.type=tautulli
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.key=[API KEY]
-      
+      - homepage.widget.url=${TAUTULLI_INTERNAL_IP}
+      - homepage.widget.key=${TAUTULLI_API_KEY}
+
   plex-meta-manager:
+    env_file:
+      - .env
     image: kometateam/kometa:latest
     container_name: kometa
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/New_York
-      - KOMETA_CONFIG=/config/config.yml #optional
-      - KOMETA_TIME=00:00 #optional
-      - KOMETA_TEST=False #optional
-      - KOMETA_NO_MISSING=False #optional
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - KOMETA_CONFIG=/config/config.yml
+      - KOMETA_TIME=00:00
+      - KOMETA_TEST=False
+      - KOMETA_NO_MISSING=False
       - KOMETA_RUN=True
     volumes:
       - /root/Server/.config/plex-meta-manager:/config
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   pattrmm:
+    env_file:
+      - .env
     image: ghcr.io/insertdisc/pattrmm:latest
     container_name: pattrmm
     command: --run
     environment:
-      - PUID=1000
-      - GUID=1000
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - GUID=${GUID}
+      - TZ=${TZ}
       - PATTRMM_TIME=02:00
     volumes:
       - /root/Server/.config/pattrmm/data:/data
@@ -56,15 +61,17 @@ services:
       - /root/Server/.config/plex-meta-manager:/config
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   picard:
+    env_file:
+      - .env
     image: mikenye/picard
     container_name: picard
     environment:
-      - USER_ID=1000
-      - GROUP_ID=0
-      - TZ=America/New_York
+      - USER_ID=${USER_ID}
+      - GROUP_ID=${GROUP_ID}
+      - TZ=${TZ}
       - KEEP_APP_RUNNING=1
     volumes:
       - /root/Server/.config/picard:/config
@@ -73,49 +80,55 @@ services:
       - 5801:5800
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   jdownloader-2:
+    env_file:
+      - .env
     image: jlesage/jdownloader-2:v25.07.2
     container_name: jdownloader
     ports:
       - 5800:5800
     environment:
-      - VNC_PASSWORD=
+      - VNC_PASSWORD=${VNC_PASSWORD}
     volumes:
       - /root/Server/.config/jdownloader:/config:rw
       - /root/Server/downloads/complete/jdownloader:/output:rw
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Downloaders
       - homepage.name=JDownloader
       - homepage.icon=jdownloader.png
-      - homepage.href=[EXTERNAL URL]
+      - homepage.href=${JDOWNLOADER_EXTERNAL_URL}
       - homepage.description=Download Status
       - homepage.widget.type=jdownloader
-      - homepage.widget.url=[INTERNAL IP]
-      - homepage.widget.username=
-      - homepage.widget.password=
-      - homepage.widget.client=
+      - homepage.widget.url=${JDOWNLOADER_INTERNAL_IP}
+      - homepage.widget.username=${JDOWNLOADER_USERNAME}
+      - homepage.widget.password=${JDOWNLOADER_PASSWORD}
+      - homepage.widget.client=${JDOWNLOADER_CLIENT}
 
   plextraktsync:
+    env_file:
+      - .env
     image: ghcr.io/taxel/plextraktsync:latest
     container_name: plextraktsync
     stdin_open: true
     tty: true
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     command: watch
     volumes:
       - /root/Server/.config/plextraktsync:/app/config
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   watchtower:
+    env_file:
+      - .env
     container_name: watchtower
     image: containrrr/watchtower
     environment:
@@ -126,18 +139,20 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-    
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+
   autoscan:
+    env_file:
+      - .env
     container_name: autoscan
     image: ghcr.io/hotio/autoscan
     restart: unless-stopped
     ports:
-      - "3030:3030"
+      - 3030:3030
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/New_York
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     volumes:
       - /root/Server/.config/autoscan:/config
       - /root/Server:/server
@@ -145,23 +160,27 @@ services:
     depends_on:
       - autoscan-adapter
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   autoscan-adapter:
+    env_file:
+      - .env
     image: dantebarba/autoscan-adapter
     container_name: autoscan-adapter
     restart: unless-stopped
     ports:
-      - "3031:5000"
+      - 3031:5000
     environment:
-      - PGID= 1000
-      - PUID= 1000
+      - PGID=${PGID}
+      - PUID=${PUID}
       - PLEX_URL=
       - PLEX_TOKEN=
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-      
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+
   homepage:
+    env_file:
+      - .env
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     ports:
@@ -172,9 +191,11 @@ services:
       - /root/Server/.config/homepage:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-      
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+
   wizarr:
+    env_file:
+      - .env
     container_name: wizarr
     image: ghcr.io/wizarrrr/wizarr:latest
     ports:
@@ -182,28 +203,32 @@ services:
     volumes:
       - /root/Server/.config/wizarr:/data/database
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
     restart: unless-stopped
-      
+
   wrapperr:
+    env_file:
+      - .env
     ports:
-      - '8282:8282'
+      - 8282:8282
     container_name: wrapperr
     image: ghcr.io/aunefyren/wrapperr:latest
     restart: unless-stopped
     volumes:
       - /root/Server/.config/wrapperr:/app/config
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-    
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+
   notifiarr:
+    env_file:
+      - .env
     privileged: true
     container_name: notifiarr
     hostname: notifiarr
     image: golift/notifiarr
     restart: unless-stopped
     ports:
-      - "5454:5454"
+      - 5454:5454
     environment:
       - DN_API_KEY=
       - DN_BIND_ADDR=
@@ -211,50 +236,66 @@ services:
       - /root/Server/.config/notifiarr:/config
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
-    
+    labels:
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+      - homepage.group=Notifications
+      - homepage.name=Notifiarr
+      - homepage.icon=notifiarr.png
+      - homepage.href=${NOTIFIARR_EXTERNAL_URL}
+      - homepage.description=Notifiarr
+      - homepage.widget.type=notifiarr
+      - homepage.widget.url=${NOTIFIARR_INTERNAL_IP}
+      - homepage.widget.key=${NOTIFIARR_API_KEY}
+
   uptime-kuma:
+    env_file:
+      - .env
     container_name: uptime-kuma
     image: louislam/uptime-kuma:latest
     volumes:
       - /root/Server/.config/uptime-kuma:/app/data
     ports:
       - 3333:3001
-    restart: unless-stopped    
+    restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-      
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+
   pds:
+    env_file:
+      - .env
     container_name: pds
     image: ghcr.io/bluesky-social/pds:0.4
     volumes:
-        - /root/Server/.config/bluesky-pds:/pds
-    env_file:
-      - /root/Server/.config/bluesky-pds/pds.env
-    restart: unless-stopped 
+      - /root/Server/.config/bluesky-pds:/pds
+    restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
-    
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+
   duplicati:
+    env_file:
+      - .env
     image: duplicati/duplicati
     container_name: duplicati
     environment:
-      - PUID=1000
-      - PGID=0
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - /root/Server/.config/duplicati/:/data
-      - /root/Server:/server #optional
+      - /root/Server:/server
     ports:
       - 8200:8200
     restart: unless-stopped
-    
+
   yamtrack:
+    env_file:
+      - .env
     container_name: yamtrack
     image: ghcr.io/fuzzygrim/yamtrack
     restart: unless-stopped
     depends_on:
       - yamtrack-redis
     environment:
-      - TZ=America/New_York
+      - TZ=${TZ}
       - SECRET=
       - REDIS_URL=redis://yamtrack-redis:6379
       - URLS=
@@ -269,9 +310,21 @@ services:
     volumes:
       - /root/Server/.config/yamtrack/db:/yamtrack/db
     ports:
-      - "8030:8000"
+      - 8030:8000
+    labels:
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
+      - homepage.group=Tracking
+      - homepage.name=Yamtrack
+      - homepage.icon=yamtrack.png
+      - homepage.href=${YAMTRACK_EXTERNAL_URL}
+      - homepage.description=Yamtrack
+      - homepage.widget.type=yamtrack
+      - homepage.widget.url=${YAMTRACK_INTERNAL_IP}
+      - homepage.widget.key=${YAMTRACK_API_KEY}
 
   yamtrack-redis:
+    env_file:
+      - .env
     container_name: yamtrack-redis
     image: redis:7-alpine
     restart: unless-stopped
