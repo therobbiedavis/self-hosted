@@ -19,13 +19,13 @@ services:
     volumes:
       - /root/Server/.config/authentik/database:/var/lib/postgresql/data
     environment:
-      POSTGRES_PASSWORD: ${PG_PASS}
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_DB: ${PG_DB}
+      POSTGRES_PASSWORD: ${AUTHENTIK_PG_PASS}
+      POSTGRES_USER: ${AUTHENTIK_PG_USER}
+      POSTGRES_DB: ${AUTHENTIK_PG_DB}
     networks:
       - internal_network
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       
   redis_authentik:
     container_name: authentik-redis
@@ -43,7 +43,7 @@ services:
     networks:
       - internal_network
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
   
   server_authentik:
     env_file:
@@ -53,17 +53,17 @@ services:
     environment:
       AUTHENTIK_REDIS__HOST: redis_authentik
       AUTHENTIK_POSTGRESQL__HOST: postgresql_authentik
-      AUTHENTIK_POSTGRESQL__USER: ${PG_USER}
-      AUTHENTIK_POSTGRESQL__NAME: ${PG_DB}
-      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
       PUID: ${PUID}
       PGID: ${PGID}
     volumes:
       - /root/Server/.config/authentik/server/media:/media
       - /root/Server/.config/authentik/server/custom-templates:/templates
     ports:
-      - "${COMPOSE_PORT_HTTP:-9000}:9000"
-      - "${COMPOSE_PORT_HTTPS:-9444}:9443"
+      - "${AUTHENTIK_COMPOSE_PORT_HTTP:-9000}:9000"
+      - "${AUTHENTIK_COMPOSE_PORT_HTTPS:-9444}:9443"
     restart: unless-stopped
     depends_on:
       postgresql_authentik:
@@ -71,7 +71,7 @@ services:
       redis_authentik:
         condition: service_healthy
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Services
       - homepage.name=Authentik
       - homepage.icon=authentik.png
@@ -91,9 +91,9 @@ services:
     environment:
       AUTHENTIK_REDIS__HOST: redis_authentik
       AUTHENTIK_POSTGRESQL__HOST: postgresql_authentik
-      AUTHENTIK_POSTGRESQL__USER: ${PG_USER}
-      AUTHENTIK_POSTGRESQL__NAME: ${PG_DB}
-      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -106,7 +106,7 @@ services:
       redis_authentik:
         condition: service_healthy
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Services
       - homepage.name=Authentik
       - homepage.icon=authentik.png

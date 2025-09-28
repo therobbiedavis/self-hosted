@@ -48,8 +48,8 @@ cat /proc/sys/fs/inotify/max_user_watches
 ##
 # Add User
 ##
-adduser robbie
-usermod -a -G root robbie
+adduser server
+usermod -a -G root server
 
 ##
 # Installing VNC
@@ -57,12 +57,6 @@ usermod -a -G root robbie
 apt install xfce4 xfce4-goodies tigervnc-standalone-server dbus-x11 tigervnc-common -y
 vncpasswd
 vncserver -localhost no
-
-##
-# Installing Portainer
-##
-docker volume create portainer_data
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest
 
 ##
 # Setup folder structure
@@ -88,8 +82,8 @@ mkdir /root/Server/cache
 ##
 # Change owner of folders
 ##
-chown -R robbie /root/Server/downloads
-chown -R robbie /root/Server/.config
+chown -R server /root/Server/downloads
+chown -R server /root/Server/.config
 
 ##
 # Copy Rclone config from one server to another
@@ -118,3 +112,11 @@ docker compose -f /root/Server/docker/services.yml up -d
 docker compose -f /root/Server/docker/requesters.yml up -d
 docker compose -f /root/Server/docker/servers.yml up -d
 docker compose -f /root/Server/docker/arrs.yml up -d
+
+# Get UID and GID of 'server' and update .env files
+SERVER_UID=$(id -u server)
+SERVER_GID=$(id -g server)
+for envfile in /root/Server/.config/*/.env; do
+  sed -i "/^PUID=/c\PUID=$SERVER_UID" "$envfile"
+  sed -i "/^PGID=/c\PGID=$SERVER_GID" "$envfile"
+done

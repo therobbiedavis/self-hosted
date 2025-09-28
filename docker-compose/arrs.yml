@@ -16,7 +16,7 @@ services:
       - 8989:8989
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Sonarr
       - homepage.icon=sonarr.png
@@ -42,7 +42,7 @@ services:
       - 5555:5555
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Sonarr 4K
       - homepage.icon=sonarr.png
@@ -66,7 +66,7 @@ services:
     network_mode: "container:torguard"
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Prowlarr
       - homepage.icon=prowlarr.png
@@ -92,7 +92,7 @@ services:
       - 7878:7878
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Radarr
       - homepage.icon=radarr.png
@@ -118,7 +118,7 @@ services:
       - 7979:7878
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Radarr 4K
       - homepage.icon=radarr.png
@@ -144,7 +144,7 @@ services:
       - 6767:6767
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Bazarr
       - homepage.icon=bazarr.png
@@ -166,7 +166,7 @@ services:
       - 9001:9000
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
     
   lidarr:
     env_file:
@@ -184,7 +184,7 @@ services:
       - 8686:8686
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Lidarr
       - homepage.icon=lidarr.png
@@ -210,7 +210,7 @@ services:
       - 8787:8787
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=*arrs
       - homepage.name=Readarr
       - homepage.icon=readarr.png
@@ -239,7 +239,7 @@ services:
       - /root/Server/.config/mylar/scripts:/scripts
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - autoheal=true
       - homepage.group=*arrs
       - homepage.name=Mylar

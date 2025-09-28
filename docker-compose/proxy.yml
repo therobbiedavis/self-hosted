@@ -120,7 +120,7 @@ services:
       - /root/Server:/server
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - autoheal=true
       - homepage.group=Downloaders
       - homepage.name=qBittorrent
@@ -150,7 +150,7 @@ services:
       - 9393:8080
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - autoheal=true
       - homepage.group=Downloaders
       - homepage.name=SABnzbd
@@ -173,7 +173,7 @@ services:
       - LOOP_DELAY=1800
     privileged: true
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   speedtest_server:
     env_file:
@@ -187,7 +187,7 @@ services:
     container_name: openspeedtest
     image: openspeedtest/latest
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       
   firefox:
     env_file:
@@ -209,7 +209,7 @@ services:
     volumes:
       - /root/Server/.config/firefox:/config
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
         
 networks:
   outside:

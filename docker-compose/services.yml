@@ -14,7 +14,7 @@ services:
       - 8181:8181
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Media
       - homepage.name=Tautulli
       - homepage.icon=tautulli.png
@@ -42,7 +42,7 @@ services:
       - /root/Server/.config/plex-meta-manager:/config
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   pattrmm:
     env_file:
@@ -61,7 +61,7 @@ services:
       - /root/Server/.config/plex-meta-manager:/config
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   picard:
     env_file:
@@ -80,7 +80,7 @@ services:
       - 5801:5800
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   jdownloader-2:
     env_file:
@@ -96,7 +96,7 @@ services:
       - /root/Server/downloads/complete/jdownloader:/output:rw
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Downloaders
       - homepage.name=JDownloader
       - homepage.icon=jdownloader.png
@@ -124,7 +124,7 @@ services:
       - /root/Server/.config/plextraktsync:/app/config
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   watchtower:
     env_file:
@@ -139,7 +139,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   autoscan:
     env_file:
@@ -160,7 +160,7 @@ services:
     depends_on:
       - autoscan-adapter
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   autoscan-adapter:
     env_file:
@@ -176,7 +176,7 @@ services:
       - PLEX_URL=
       - PLEX_TOKEN=
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   homepage:
     env_file:
@@ -191,7 +191,7 @@ services:
       - /root/Server/.config/homepage:/app/config
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   wizarr:
     env_file:
@@ -203,7 +203,7 @@ services:
     volumes:
       - /root/Server/.config/wizarr:/data/database
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
     restart: unless-stopped
 
   wrapperr:
@@ -217,7 +217,7 @@ services:
     volumes:
       - /root/Server/.config/wrapperr:/app/config
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   notifiarr:
     env_file:
@@ -237,7 +237,7 @@ services:
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Notifications
       - homepage.name=Notifiarr
       - homepage.icon=notifiarr.png
@@ -258,7 +258,7 @@ services:
       - 3333:3001
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   pds:
     env_file:
@@ -269,7 +269,7 @@ services:
       - /root/Server/.config/bluesky-pds:/pds
     restart: unless-stopped
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
 
   duplicati:
     env_file:
@@ -312,7 +312,7 @@ services:
     ports:
       - 8030:8000
     labels:
-      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.enable=${WATCHTOWER_ENABLED}
       - homepage.group=Tracking
       - homepage.name=Yamtrack
       - homepage.icon=yamtrack.png
