@@ -3,9 +3,9 @@
 
 This setup is running the latest Ubuntu LTS (24.04 (Noble Numbat)) on a dedicated server from the Hetzner auction market ([Hetzner Server Auction](https://www.hetzner.com/sb/) for around $35 USD/month as of 2025). The current machine is an Intel Core i9-9900K with 2x 1TB NVMe SSDs and 64GB DDR4 RAM (4x 16GB sticks). The server is located in Germany and offers unmetered bandwidth, which is perfect for hosting media services, cloud storage, and remote access for friends and family.
 
-This server was chosen specifically for the value and performance of the i9-9900K which has Intel Quick Sync video decoding capabilities. With built-in support for h265 (HEVC) and AV1, hardware transcoding is trivial, and a dedicated graphics card is unnecessary for most media workloads. This makes the setup efficient, cost-effective, and ideal for streaming high-quality content to multiple users, but also for the NVMe SSD's which allows for no IOPS bottleneck (storage device can't keep up with read/write requests).
+This server was chosen specifically for the value and performance of the i9-9900K which has Intel Quick Sync video decoding capabilities. With built-in support for h265 (HEVC) and AV1, hardware transcoding is trivial, and a dedicated graphics card is unnecessary for most media workloads. This makes the setup efficient, cost-effective, and ideal for streaming high-quality content to multiple users.
 
-This hardware allows dozens of containers to run simultaneously, including Plex, Jellyfin, Emby, and various automation tools. The NVMe drives provide fast access for transcoding and downloads, while the generous RAM ensures smooth multitasking and caching. Hetzner's auction servers are a great value for anyone looking to self-host with serious performance and reliability.
+This hardware allows dozens of containers to run simultaneously, including Plex, Jellyfin, Emby, and various automation tools. The NVMe drives allows for no IOPS bottleneck (storage device can't keep up with read/write requests) and provide fast access for transcoding and downloads, while the generous RAM ensures smooth multitasking and caching. Hetzner's auction servers are a great value for anyone looking to self-host with serious performance and reliability.
 
 ## Overview
 
